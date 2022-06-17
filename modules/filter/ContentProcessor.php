@@ -146,7 +146,13 @@ class ContentProcessor{
 
             // register filter targets
             foreach ($compatSections as $section){
-                $this->registerFilterTarget($this->_compatFilter, $section);
+				// Use priority of 10 with Crayon to avoid wpautop issues
+				if($this->_config['compat-crayon']) {
+					$this->registerFilterTarget($this->_compatFilter, $section, 10);
+				}
+				else {
+					$this->registerFilterTarget($this->_compatFilter, $section);
+				}
             }
         }
 
@@ -160,9 +166,9 @@ class ContentProcessor{
     }
 
     // add content filter (strip + restore) to the given content section
-    public function registerFilterTarget($filter, $name){
+    public function registerFilterTarget($filter, $name, $priority=0){
         // add content filter to first position - replaces all enlighter shortcodes with placeholders
-        add_filter($name, array($filter, 'stripCodeFragments'), 0, 1);
+        add_filter($name, array($filter, 'stripCodeFragments'), $priority, 1);
 
         // filter already added to the list of restore filters ?
         if (!isset($this->_filters[$name])){
